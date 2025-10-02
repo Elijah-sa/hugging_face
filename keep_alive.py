@@ -14,18 +14,24 @@ try:
     client = Client(SPACE_ID)
     
     # Send a simple query using the exact parameter names from your docs
+    # NOTE: Removed the invalid '_ignored_fn_index' parameter.
+    # NOTE: Set a longer timeout in case of a cold start.
     result = client.predict(
-        user_message="Hello.",
+        user_message="Automated keep-alive ping.",
         history=[],
         api_name=API_NAME,
-        # Increase timeout for cold starts on the free tier
-        _ignored_fn_index=0, 
-        _request_timeout=120 
+        _request_timeout=120  
     )
     
     # Print the result to confirm activity
     print(f"✅ Success! Space responded.")
-    print(f"Chatbot Output Snippet: {result[0][0][1][:100]}...")
+    # Assuming the first output element is the chat history, and the last item is the bot's response
+    # This line attempts to parse the nested output structure for a snippet.
+    if isinstance(result, tuple) and len(result) > 0 and isinstance(result[0], list) and len(result[0]) > 0:
+        last_response = result[0][-1][1] 
+        print(f"Chatbot Output Snippet: {last_response[:100]}...")
+    else:
+        print("Chatbot returned an unexpected output format, but the call was successful.")
     
 except Exception as e:
     print(f"❌ Keep-Alive Failed. Error: {e}")
