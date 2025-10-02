@@ -14,20 +14,21 @@ try:
     client = Client(SPACE_ID)
     
     # Send a simple query using the exact parameter names from your docs
-    # NOTE: Removed the invalid '_ignored_fn_index' parameter.
-    # NOTE: Set a longer timeout in case of a cold start.
+    # NOTE: All internal/private parameters (_request_timeout, _ignored_fn_index) are removed.
     result = client.predict(
         user_message="Automated keep-alive ping.",
         history=[],
-        api_name=API_NAME,
-        _request_timeout=120  
+        api_name=API_NAME
     )
     
     # Print the result to confirm activity
     print(f"✅ Success! Space responded.")
-    # Assuming the first output element is the chat history, and the last item is the bot's response
-    # This line attempts to parse the nested output structure for a snippet.
-    if isinstance(result, tuple) and len(result) > 0 and isinstance(result[0], list) and len(result[0]) > 0:
+    
+    # Attempt to extract the bot's response from the complex nested tuple structure
+    # The structure is: result = (history, new_message_box_value)
+    # The history part is usually result[0]. We check the last message in history.
+    if isinstance(result, tuple) and len(result) > 0 and isinstance(result[0], list):
+        # Last message in history is at result[0][-1], and the bot's response is the second element [1]
         last_response = result[0][-1][1] 
         print(f"Chatbot Output Snippet: {last_response[:100]}...")
     else:
@@ -35,5 +36,5 @@ try:
     
 except Exception as e:
     print(f"❌ Keep-Alive Failed. Error: {e}")
-    # This will fail the GitHub Action, which is what we want on an error
+    # This will fail the GitHub Action
     exit(1)
