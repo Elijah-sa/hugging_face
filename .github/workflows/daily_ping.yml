@@ -1,0 +1,29 @@
+name: Daily Space Keep-Alive
+
+on:
+  schedule:
+    # Runs every day at 15:00 UTC (3:00 PM UTC).
+    # This is a good time to ensure the Space doesn't sleep overnight.
+    # The timeout for the free tier is 48 hours, so daily is safe.
+    - cron: '0 15 * * *'
+  workflow_dispatch: # Allows manual trigger from the Actions tab for easy testing
+
+jobs:
+  ping_space:
+    runs-on: ubuntu-latest
+    steps:
+      - name: ⬇️ Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 🐍 Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x' 
+
+      - name: 📦 Install Gradio Client
+        # The client that knows the correct API URL for your Space
+        run: pip install gradio_client
+
+      - name: 📞 Execute Keep-Alive Script
+        # This runs the 'keep_alive.py' file you created in Step 1
+        run: python keep_alive.py
